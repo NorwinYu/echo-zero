@@ -4,7 +4,7 @@
 'use strict';
 const AUDIO = (()=>{
   let ctx=null, master=null, musicBus=null, voiceBus=null, sfxBus=null;
-  let musicTimer=null, musicNodes=[], mode=null, voiceEl=null, enabled=false, bgmEl=null, bgmFade=null;
+  let musicTimer=null, musicNodes=[], mode=null, voiceEl=null, voiceSource=null, voiceReq=0, voiceCache=new Map(), voiceOrder=[], unlocked=false, enabled=false, bgmEl=null, bgmFade=null;
   const settings={music:.16,voice:.95,sfx:.55};
   const chords={
     menu:[[146.83,174.61,220,261.63],[130.81,164.81,196,246.94],[116.54,146.83,174.61,220],[110,138.59,164.81,220]],
@@ -23,7 +23,15 @@ const AUDIO = (()=>{
     sfxBus=ctx.createGain(); sfxBus.gain.value=settings.sfx; sfxBus.connect(master);
     enabled=true;
   }
-  function resume(){ init(); if(ctx&&ctx.state==='suspended') ctx.resume(); if(bgmEl&&bgmEl.paused) bgmEl.play().catch(()=>{}); }
+  function resume(){
+    init();
+    if(ctx&&ctx.state==='suspended') ctx.resume().catch(()=>{});
+    if(bgmEl&&bgmEl.paused) bgmEl.play().catch(()=>{});
+    if(ctx&&!unlocked){
+      unlocked=true;
+      try{const b=ctx.createBuffer(1,1,22050);const s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0);}catch(e){}
+    }
+  }
   function tone(freq,dur,type='sine',vol=.08,when=0,bus=musicBus,filter=1200){
     if(!ctx) return;
     const t=ctx.currentTime+when; const o=ctx.createOscillator(), g=ctx.createGain(), f=ctx.createBiquadFilter();
@@ -42,7 +50,7 @@ const AUDIO = (()=>{
     const files=window.AI_ASSETS&&window.AI_ASSETS.music||{};
     const src=files[next]||((next==='menu'||next==='archive')?files.theme:null)||(next==='silence'?files.ending:null);
     if(src&&!settings.reduceMotion){
-      bgmEl=new Audio(src); bgmEl.loop=true; bgmEl.volume=0;
+      bgmEl=new Audio(); bgmEl.preload='auto'; bgmEl.src=src; bgmEl.loop=true; bgmEl.volume=0;
       bgmEl.play().catch(()=>{});
       const target=settings.music*(next==='silence'?.55:1); let v=0;
       clearInterval(bgmFade); bgmFade=setInterval(()=>{ if(!bgmEl){clearInterval(bgmFade);return;} v=Math.min(target,v+.025); bgmEl.volume=v; if(v>=target)clearInterval(bgmFade); },50);
@@ -76,14 +84,56 @@ const AUDIO = (()=>{
     else if(name==='rain'){ noise(1.4,.012); }
   }
   function setVolume(k,v){ settings[k]=v; if(bgmEl&&k==='music') bgmEl.volume=v; if(!ctx) return; if(k==='music') musicBus.gain.value=v; if(k==='voice') voiceBus.gain.value=v; if(k==='sfx') sfxBus.gain.value=v; }
+  function cacheVoice(src,buf){
+    if(voiceCache.has(src)) return;
+    voiceCache.set(src,buf); voiceOrder.push(src);
+    while(voiceOrder.length>8){const old=voiceOrder.shift();voiceCache.delete(old);}
+  }
+  function loadVoiceBuffer(src){
+    if(voiceCache.has(src)) return Promise.resolve(voiceCache.get(src));
+    if(!ctx||!window.fetch) return Promise.reject(new Error('no audio context'));
+    return fetch(src).then(r=>{if(!r.ok)throw new Error('voice '+r.status);return r.arrayBuffer();}).then(ab=>{
+      return new Promise((resolve,reject)=>{
+        const p=ctx.decodeAudioData(ab,buf=>{cacheVoice(src,buf);resolve(buf);},reject);
+        if(p&&p.then)p.then(buf=>{cacheVoice(src,buf);resolve(buf);},reject);
+      });
+    });
+  }
+  function preloadVoice(src){
+    if(!src||!ctx) return Promise.resolve(false);
+    return loadVoiceBuffer(src).then(()=>true).catch(()=>false);
+  }
   function playVoice(src){
     stopVoice(); if(!src) return Promise.resolve();
-    voiceEl=new Audio(src); voiceEl.volume=settings.voice;
-    return new Promise(res=>{ voiceEl.onended=()=>res(); voiceEl.onerror=()=>res(); voiceEl.play().catch(()=>res()); });
+    const my=++voiceReq;
+    return new Promise(resolve=>{
+      let done=false;const finish=()=>{if(done)return;done=true;resolve();};
+      const fallback=()=>{
+        if(my!==voiceReq){finish();return;}
+        voiceEl=new Audio(src); voiceEl.volume=settings.voice;
+        voiceEl.onended=finish; voiceEl.onerror=finish; voiceEl.play().catch(finish);
+      };
+      if(!ctx||!window.fetch){fallback();return;}
+      ctx.resume().catch(()=>{});
+      loadVoiceBuffer(src).then(buf=>{
+        if(my!==voiceReq){finish();return;}
+        try{
+          const s=ctx.createBufferSource();s.buffer=buf;s.connect(voiceBus);voiceSource=s;
+          const timer=setTimeout(()=>{if(voiceSource===s){try{s.stop()}catch(e){}voiceSource=null;}finish();},Math.max(1200,(buf.duration+1.5)*1000));
+          s.onended=()=>{clearTimeout(timer);if(voiceSource===s)voiceSource=null;finish();};
+          s.start();
+        }catch(e){fallback();}
+      }).catch(fallback);
+    });
   }
-  function stopVoice(){ if(voiceEl){ try{voiceEl.pause();voiceEl.currentTime=0;}catch(e){} voiceEl=null; } duck(false); }
+  function stopVoice(){
+    voiceReq++;
+    if(voiceSource){try{voiceSource.stop()}catch(e){}voiceSource=null;}
+    if(voiceEl){try{voiceEl.pause();voiceEl.currentTime=0;}catch(e){}voiceEl=null;}
+    duck(false);
+  }
   function duck(on){ if(bgmEl) bgmEl.volume=on?settings.music*.35:settings.music; if(musicBus&&ctx) musicBus.gain.setTargetAtTime(on?settings.music*.35:settings.music,ctx.currentTime,.2); }
-  return { init,resume,startMusic,stopMusic,sfx,setVolume,playVoice,stopVoice,duck,get ready(){return !!ctx;} };
+  return { init,resume,startMusic,stopMusic,sfx,setVolume,playVoice,stopVoice,duck,preloadVoice,get status(){return {ctx:ctx?ctx.state:null,bgm:bgmEl?{paused:bgmEl.paused,readyState:bgmEl.readyState,currentTime:bgmEl.currentTime,volume:bgmEl.volume}:null,voice:!!voiceSource,cache:voiceCache.size};},get ready(){return !!ctx;} };
 })();
 window.AUDIO=AUDIO;
 })();

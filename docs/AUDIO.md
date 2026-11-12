@@ -145,7 +145,7 @@ H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4
 - `ui` / `alert` / `scan` / `heart` / `power` / `glitch` / `rain`
 - 无外部采样
 
-### 4.3 音效：WebAudio 合成
+#### 音效清单
 
 - `ui`：短促高频点击
 - `alert`：双音警报
@@ -154,6 +154,15 @@ H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4
 - `power`：电源启动
 - `glitch`：噪声 + 方波故障
 - `rain`：噪声雨声
+
+### 4.4 浏览器播放策略
+
+- **首次触摸 / 点击**：初始化并 `resume()` AudioContext，同时重试 BGM 播放；这是移动浏览器的自动播放限制。
+- **语音改为 WebAudio**：`fetch` MP3 → `decodeAudioData` → `AudioBufferSourceNode` 播放，不再依赖每句 `new Audio()` 的自动播放权限，避免 iOS 上 BGM 有声音、对白没声音。
+- **预加载**：开始新游戏时预加载第一句；每句渲染时预加载下一句；已解码语音做 8 条 LRU 缓存。
+- **BGM**：仍用 `<audio loop>`，首次交互后播放；音量默认 16%，对白播放时自动 duck。
+- **微信内置浏览器**：监听 `WeixinJSBridgeReady` 并支持首次触摸解锁。
+- **静音开关**：iPhone 侧边静音键会静音网页音频，代码无法绕过，需要在系统层关闭静音。
 
 ---
 

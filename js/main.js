@@ -71,6 +71,7 @@ function hideTitle(){$('#titleScreen').classList.remove('active');$('#gameScreen
 function startNew(){
   S.sceneId=null;S.line=0;S.flags={};S.history=[];S.auto=true;S.skip=false;S.ending=false;S.paused=false;
   S.voiceToken++;AUDIO.stopVoice();S.started=true;setChar(null);hideTitle();
+  AUDIO.preloadVoice(ASSETS.voice&&ASSETS.voice.v001);
   const ov=$('#openingLayer'), v=$('#openingVideo');
   const src=ASSETS.video&&ASSETS.video.opening;
   if(src&&!SETTINGS.reduceMotion){
@@ -97,6 +98,7 @@ function enterScene(id){
   $('#chapterNo').textContent=ch.no;$('#chapterTitle').textContent=ch.title;
   setBg(sc.bg);markSeenBg(sc.bg);
   if(sc.bgm)AUDIO.startMusic(sc.bgm);
+  if(sc.lines&&sc.lines[0])AUDIO.preloadVoice(voiceFor(sc.lines[0]));
   markChapter(sc.chapter);
   saveAuto();
   showChapterCard(ch);updateToggleButtons();
@@ -152,6 +154,7 @@ function renderLine(){
   S.history.push({sp:line.sp,text:line.text});
   if(S.history.length>200)S.history.shift();
   const voice=voiceFor(line);
+  const nextLine=sc.lines[S.line+1];if(nextLine)AUDIO.preloadVoice(voiceFor(nextLine));
   if(voice&&!SETTINGS.reduceMotion){
     const token=++S.voiceToken;AUDIO.duck(true);
     AUDIO.playVoice(voice).then(()=>{if(token===S.voiceToken){AUDIO.duck(false);S.voiceDone=true;if(S.auto)scheduleAuto();}});
@@ -244,6 +247,7 @@ function loadGame(slot='auto'){
   setBg(bg);setChar(charId);if(sc.bgm)AUDIO.startMusic(sc.bgm);
   $('#dialogueWrap').classList.add('show');$('#choiceLayer').classList.remove('show');$('#endingLayer').classList.remove('show');
   if(S.line>=sc.lines.length&&sc.choice){showChoice(sc.choice);return true;}
+  AUDIO.preloadVoice(voiceFor(sc.lines[S.line]));
   renderLine();return true;
 }
 function slotInfo(slot){const d=loadJSON(SAVE_PREFIX+slot,null);if(!d)return null;const ch=chapterData(sceneData(d.scene)?.chapter);return {slot,scene:d.scene,line:d.line,chapter:ch,date:new Date(d.ts||Date.now()).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})};}
@@ -379,7 +383,19 @@ function bind(){
   $('#endingLayer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='backTitle')showTitle();if(b.dataset.action==='gallery')openGallery();});
   $('#sideEndLayer').addEventListener('click',e=>{const b=e.target.closest('[data-side-action]');if(!b)return;if(b.dataset.sideAction==='title')showTitle();if(b.dataset.sideAction==='sides')openSideStories();});
   // 首次交互初始化音频
-  ['pointerdown','keydown'].forEach(ev=>document.addEventListener(ev,()=>AUDIO.resume(),{once:true}));
+  ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,()=>AUDIO.resume(),{passive:true}));
+  document.addEventListener('WeixinJSBridgeReady',()=>AUDIO.resume(),false);
+  if(window.WeixinJSBridge)AUDIO.resume();
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)AUDIO.resume();});
+  let soundHinted=false;
+  document.addEventListener('pointerdown',()=>setTimeout(()=>{
+    if(soundHinted)return;
+    const st=AUDIO.status;
+    if(st.ctx!=='running'||(st.bgm&&st.bgm.paused)){
+      soundHinted=true;
+      toast('没有声音？点一下屏幕，并检查手机静音开关',4200);
+    }
+  },2600),{once:true});
 }
 function stopAllTimers(){clearTimeout(S.chapterCardTimer);clearTimeout(S.autoTimer);clearTimeout(S.skipTimer);}
 
