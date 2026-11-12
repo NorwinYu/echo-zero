@@ -428,6 +428,8 @@ function preloadVideoMeta(src){
 async function boot(){
   loadSettings();
   initTitle(); // start title background immediately, before the preload gate
+  AUDIO.startMusic('menu'); // start BGM fetch/decode while images preload
+  AUDIO.preloadVoice(ASSETS.voice&&ASSETS.voice.v001);
   const bg=Object.values(ASSETS.bg||{}).filter(Boolean);
   const chars=Object.values(ASSETS.char||{}).filter(Boolean);
   const list=[...bg,...chars];
