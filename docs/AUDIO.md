@@ -125,7 +125,7 @@ ComfyUI 内置节点中没有可直接使用的 Music3 模型：
 
 ### 4.2 BGM：MiniMax Music3（H3 音频接口）
 
-H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4 段 30 秒循环 BGM：
+H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4 段约 24–30 秒循环 BGM：
 
 - `theme`：主题 / 档案室
 - `descent`：下潜 / 紧张
@@ -135,7 +135,7 @@ H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4
 参数：`caption` + `[Instrumental]` 歌词 + `seconds=30` + `steps=30` + `cfg=1.7`。
 
 - 生成时通过 H3 音频接口完成；运行时只播放已保存的 MP3，不联网
-- 播放：`js/audio.js` 用 WebAudio 解码为 `AudioBuffer`，再用 `AudioBufferSourceNode` 循环播放，按场景切换；首次触摸后启动
+- 播放：`js/audio.js` 用 WebAudio 解码为 `AudioBuffer`，再用 `AudioBufferSourceNode` 循环播放，按场景切换；首次触摸后启动。BGM 已压到 96 kbps，单段约 300–360 KB
 - 若文件缺失，回退到 WebAudio 程序化音乐
 - 全部为原创生成，无第三方采样
 
