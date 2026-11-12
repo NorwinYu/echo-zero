@@ -2,6 +2,8 @@
 
 **一部原创未来科幻视觉小说 Demo。图像、配音与故事驱动的非商业 AI 生成实验。**
 
+**[▶ 在线游玩](https://norwinyu.github.io/echo-zero/)** ｜ [源码](https://github.com/NorwinYu/echo-zero)
+
 > **重要声明**  
 > 这是一个**非商业技术 Demo**，用于验证 **DeepSeek Flash（代码 / UI / 音效） + MiniMax H3（图像 / 视频 / 音乐） + Edge 神经 TTS（中文配音）** 的组合。  
 > **故事、角色、文本均为原创**，不含任何现有作品的角色、剧情或设定，不存在版权纠纷。  
@@ -208,7 +210,7 @@ echo-zero/
 2. **Settings → Pages → Deploy from a branch → main / root**。
 3. 访问 `https://<username>.github.io/<repo>/`。
 
-仓库已包含 `.nojekyll` 和 `.github/workflows/pages.yml`。  
+仓库已包含 `.nojekyll`，当前通过 `main / root` 分支部署。  
 详细说明见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。
 
 ---

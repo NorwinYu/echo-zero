@@ -31,10 +31,11 @@ python3 -m http.server 8080
 https://<username>.github.io/<repo>/
 ```
 
-### 方式 B：GitHub Actions
+### 当前部署
 
-仓库包含 `.github/workflows/pages.yml`。  
-**Settings → Pages → Source** 选择 **GitHub Actions**，推送到 `main` 即可。
+本仓库当前使用 **Deploy from a branch → main / root**，不需要 Actions。
+
+> 若未来改用 Actions，请重新添加 Pages workflow，并把 Pages Source 切到 GitHub Actions；不要同时保留两种方式，否则会出现重复部署/失败记录。
 
 ---
 
