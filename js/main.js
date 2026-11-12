@@ -280,7 +280,7 @@ function openSettings(){
     <div class="setting-row"><label>配音</label><input type="range" min="0" max="1" step="0.01" value="${SETTINGS.voice}" data-set="voice"><span>${Math.round(SETTINGS.voice*100)}%</span></div>
     <div class="setting-row"><label>音效</label><input type="range" min="0" max="1" step="0.01" value="${SETTINGS.sfx}" data-set="sfx"><span>${Math.round(SETTINGS.sfx*100)}%</span></div>
     <div class="setting-row"><label>减少动态</label><input type="checkbox" data-set="reduceMotion" ${SETTINGS.reduceMotion?'checked':''}><span>关闭强动效</span></div>
-    <div class="modal-note">配音为 Edge 神经 TTS 生成；BGM 由局域网 MiniMax Music3 生成；音效由 WebAudio 合成。均为原创/非商业。</div>`;
+    <div class="modal-note">配音为 Edge 神经 TTS 生成；BGM 由 MiniMax Music3 生成；音效由 WebAudio 合成。均为原创/非商业。</div>`;
   openModal({kicker:'SETTINGS',title:'接收设置',body,footer:'<button class="mbtn primary" data-close>完成</button>',onMount:root=>{
     root.querySelector('[data-close]')?.addEventListener('click',()=>{saveSettings();closeModal();});
     root.querySelectorAll('[data-set]').forEach(inp=>inp.addEventListener('input',()=>{
@@ -384,13 +384,56 @@ function bind(){
 function stopAllTimers(){clearTimeout(S.chapterCardTimer);clearTimeout(S.autoTimer);clearTimeout(S.skipTimer);}
 
 /* ---------------- 启动 ---------------- */
-function init(){
-  loadSettings();bind();initTitle();
-  // 标题背景预加载
-  if(bgFor('title')){const i=new Image();i.src=bgFor('title');}
-  $('#openingLayer').classList.remove('show');
-  if(!Object.keys(ASSETS.bg||{}).length)toast('未找到素材清单，请先运行 tools/build_manifest.py',4000);
-  AUDIO.startMusic('menu');
+function setBoot(pct,text){
+  const fill=$('#bootFill'),st=$('#bootStatus');
+  if(fill)fill.style.width=Math.max(0,Math.min(100,pct))+'%';
+  if(st&&text)st.textContent=text;
 }
-init();
+function preloadImage(src){
+  return new Promise(resolve=>{
+    if(!src){resolve(false);return;}
+    const im=new Image();
+    let done=false;
+    const fin=ok=>{if(done)return;done=true;resolve(ok);};
+    im.onload=()=>fin(true);im.onerror=()=>fin(false);
+    im.src=src;
+    setTimeout(()=>fin(false),12000);
+  });
+}
+function preloadVideoMeta(src){
+  return new Promise(resolve=>{
+    if(!src){resolve(false);return;}
+    const v=document.createElement('video');v.preload='metadata';v.muted=true;
+    let done=false;const fin=ok=>{if(done)return;done=true;resolve(ok);};
+    v.onloadedmetadata=()=>fin(true);v.onerror=()=>fin(false);
+    v.src=src;setTimeout(()=>fin(false),5000);
+  });
+}
+async function boot(){
+  loadSettings();
+  initTitle(); // start title background immediately, before the preload gate
+  const bg=Object.values(ASSETS.bg||{}).filter(Boolean);
+  const chars=Object.values(ASSETS.char||{}).filter(Boolean);
+  const list=[...bg,...chars];
+  let done=0;
+  const total=list.length||1;
+  setBoot(0,'正在接收信号…');
+  const tasks=list.map(src=>preloadImage(src).then(ok=>{done++;setBoot(done/total*90,'正在校准图像 '+done+' / '+list.length);return ok;}));
+  // opening video metadata / poster; don't block on full download
+  const v=$('#openingVideo');if(v&&ASSETS.video&&ASSETS.video.opening){v.poster=bgFor('title')||'';v.preload='metadata';}
+  const tv=$('#titleVideo');if(tv&&ASSETS.video&&ASSETS.video.opening)tv.poster=bgFor('title')||'';
+  await Promise.all(tasks);
+  if(ASSETS.video&&ASSETS.video.opening)await preloadVideoMeta(ASSETS.video.opening);
+  setBoot(100,'信号已锁定');
+  const el=$('#bootScreen');
+  setTimeout(()=>{
+    el.classList.add('ready');
+    bind();initTitle();
+    $('#openingLayer').classList.remove('show');
+    if(!Object.keys(ASSETS.bg||{}).length)toast('未找到素材清单，请先运行 tools/build_manifest.py',4000);
+    AUDIO.startMusic('menu');
+    window.__ECHO_READY=true;
+  },320);
+}
+boot();
 })();

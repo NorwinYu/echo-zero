@@ -17,6 +17,16 @@
 </head>
 <body>
 <div id="app">
+  <!-- 启动加载：素材就绪前阻止进入 -->
+  <div id="bootScreen" class="boot-screen">
+    <div class="boot-mark"><i></i></div>
+    <div class="boot-kicker">SIGNAL ACQUISITION</div>
+    <div class="boot-title">零号信标</div>
+    <div class="boot-status" id="bootStatus">正在接收信号…</div>
+    <div class="boot-bar"><i id="bootFill"></i></div>
+    <div class="boot-sub">正在校准图像 / 语音 / 档案</div>
+  </div>
+
   <!-- 电影颗粒 / 扫描线 / 暗角 -->
   <div class="grain" aria-hidden="true"></div>
   <div class="scanlines" aria-hidden="true"></div>

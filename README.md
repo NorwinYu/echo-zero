@@ -98,25 +98,44 @@ python3 -m http.server 8080
 
 ### 手机 Web
 
-| 竖屏标题 | 竖屏角色 |
-|---|---|
-| <img src="screenshots/mobile-title.webp" width="260" alt="手机标题"> | <img src="screenshots/mobile-character.webp" width="260" alt="手机角色"> |
-| 7 个入口、安全区、触控。 | 角色立绘、底部对话框、AUTO 状态。 |
+> **手机端不是缩水版。** 与桌面共用同一套剧情、配音、BGM、片头/片尾视频、3 个选择、2 个结局和 3 个支线；竖屏只重新排布构图，保留上下黑边、左侧角色、底部对话框、AUTO / SKIP / LOG / SAVE、粒子 / 扫描线 / 暗角与转场。
 
-| 竖屏选择 | 竖屏记忆碎片 |
-|---|---|
-| <img src="screenshots/mobile-choice.webp" width="260" alt="手机选择"> | <img src="screenshots/mobile-sides.webp" width="260" alt="手机支线"> |
-| 选项卡片、全宽触控。 | 3 个支线卡片，可滚动。 |
+> 启动时先预加载 13 张背景 / 立绘并等待片头元数据，完成前标题不可误触；`100dvh` + 安全区适配刘海屏与地址栏。
 
-| 竖屏设置 | 竖屏支线结束 |
+| 启动加载 | 竖屏标题 |
 |---|---|
-| <img src="screenshots/mobile-settings.webp" width="260" alt="手机设置"> | <img src="screenshots/mobile-side-end.webp" width="260" alt="手机支线结束"> |
-| 安全区与滑杆。 | 返回标题 / 记忆碎片。 |
+| <img src="screenshots/mobile-loading.webp" width="260" alt="手机启动加载"> | <img src="screenshots/mobile-title.webp" width="260" alt="手机标题"> |
+| 预加载 13 张背景 / 立绘，进度可见；未就绪时开始按钮不响应。 | 同一套主视觉、7 个入口与底部声明；安全区适配。 |
 
-| 横屏标题 | 横屏游戏 |
+| 片头 | 竖屏角色 |
 |---|---|
-| ![横屏标题](screenshots/mobile-landscape-title.webp) | ![横屏游戏](screenshots/mobile-landscape-game.webp) |
-| 双列菜单，适配刘海。 | 右侧对话框，保留角色与场景。 |
+| <img src="screenshots/mobile-opening.webp" width="260" alt="手机片头"> | <img src="screenshots/mobile-character.webp" width="260" alt="手机角色"> |
+| H3 图生视频片头在手机上同样播放，可随时跳过。 | 左侧角色、底部对话框；AUTO 默认开启。 |
+
+| 弦 · 全息角色 | 关键选择 |
+|---|---|
+| <img src="screenshots/mobile-xian.webp" width="260" alt="手机弦"> | <img src="screenshots/mobile-choice.webp" width="260" alt="手机选择"> |
+| 与桌面同一套立绘、全息发光与背景。 | 选择时角色变暗、对话隐藏，选项卡片全宽触控。 |
+
+| 记忆碎片 | 弦的第一天 |
+|---|---|
+| <img src="screenshots/mobile-sides.webp" width="260" alt="手机支线"> | <img src="screenshots/mobile-side-first.webp" width="260" alt="手机弦的第一天"> |
+| 3 个支线卡片，可滚动；不改变主线。 | 支线同样有角色、BGM、逐字文本与结束页。 |
+
+| 支线结束 | 回声结局 |
+|---|---|
+| <img src="screenshots/mobile-side-end.webp" width="260" alt="手机支线结束"> | <img src="screenshots/mobile-ending.webp" width="260" alt="手机结局"> |
+| 返回标题 / 记忆碎片。 | 两个结局、片尾视频与回声画廊。 |
+
+| 竖屏设置 | 横屏标题 |
+|---|---|
+| <img src="screenshots/mobile-settings.webp" width="260" alt="手机设置"> | ![横屏标题](screenshots/mobile-landscape-title.webp) |
+| 文字速度、自动等待、音乐 / 配音 / 音效、减少动态；安全区滑杆。 | 双列菜单，适配刘海与横屏短高度。 |
+
+| 回声画廊 | 横屏游戏 |
+|---|---|
+| <img src="screenshots/mobile-gallery.webp" width="260" alt="手机画廊"> | ![横屏游戏](screenshots/mobile-landscape-game.webp) |
+| 已解锁场景与两个结局；缩略图可点开。 | 右侧对话框、左侧角色，保留桌面式横向构图。 |
 
 ### 美术资产
 
@@ -288,12 +307,13 @@ echo-zero/
 
 ## 手机 Web
 
-- 响应式竖屏 / 横屏布局
-- 刘海屏安全区适配
-- 触控按钮、目标卡片、可滚动弹窗
-- 支持「添加到主屏幕」的 PWA 入口
-- `manifest.webmanifest` + 192/512 图标
-- 不依赖 Service Worker，不承诺完全离线安装
+- **同内容、同效果**：手机与桌面共用 143 句配音、4 段 BGM、2 段视频、3 个选择、2 个结局、3 个支线；不是裁剪版。
+- **同一套电影构图**：上下黑边、左侧角色、底部对话框、AUTO / SKIP / LOG / SAVE、章节卡、粒子 / 扫描线 / 暗角、角色入场与场景淡入。
+- **启动加载门**：先预加载 13 张背景 / 立绘并等待片头元数据，再解锁标题，避免进入游戏后才闪图或误触。
+- **竖屏 / 横屏双布局**：竖屏为底部全宽对话框，横屏为右侧对话框；`100dvh` + `env(safe-area-inset-*)` 适配刘海、圆角与地址栏。
+- **触控优化**：按钮 / 选项 / 弹窗可点区域加大，弹窗内部可滚动；无横向溢出。
+- **PWA 入口**：`manifest.webmanifest` + 192/512 图标 + Apple Touch Icon，可添加到主屏幕。
+- 不依赖 Service Worker，不承诺完全离线安装；首次点击后音频初始化。
 
 手机访问时，建议使用最新版 Safari / Chrome；首次点击后音频初始化。
 
