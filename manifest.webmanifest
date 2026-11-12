@@ -1,0 +1,16 @@
+{
+  "name": "零号信标 · ECHO ZERO",
+  "short_name": "零号信标",
+  "description": "原创未来科幻视觉小说 Demo：图像、配音与故事驱动。",
+  "lang": "zh-CN",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#061014",
+  "theme_color": "#061014",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

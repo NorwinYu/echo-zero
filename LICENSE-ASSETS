@@ -1,0 +1,24 @@
+零号信标 · Generated Assets License
+====================================
+
+All scene backgrounds, character portraits, opening video and ending video in
+this repository were generated with MiniMax H3 for this non-commercial demo.
+All Chinese voice lines were generated with Edge neural TTS; the audio assets are bundled and run offline. All music and sound
+effects are original WebAudio synthesis.
+
+These generated assets are licensed under the Creative Commons
+Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0):
+
+  https://creativecommons.org/licenses/by-nc/4.0/
+
+You may share and adapt these assets for non-commercial purposes with
+attribution. Commercial use is NOT permitted.
+
+Notes:
+- This is a non-commercial, original science-fiction demo. It is not affiliated
+  with DeepSeek, MiniMax, or any game publisher.
+- Story, characters, and text are original; no existing work's characters or
+  plot are used.
+- Character portraits are fully clothed; no explicit content is included.
+- Generated assets are AI outputs and may contain artifacts; provided as-is.
+- The source code is licensed under MIT (see LICENSE).

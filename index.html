@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#061014">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="format-detection" content="telephone=no">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<title>零号信标 · ECHO ZERO</title>
+<meta name="description" content="原创未来科幻视觉小说 Demo：图像、配音与故事驱动的非商业 AI 生成实验。">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <!-- 电影颗粒 / 扫描线 / 暗角 -->
+  <div class="grain" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- 标题画面 -->
+  <section id="titleScreen" class="screen active">
+    <div class="title-bg" id="titleBg"></div>
+    <div class="title-video-wrap"><video id="titleVideo" muted playsinline preload="auto"></video></div>
+    <div class="title-grade"></div>
+    <div class="title-inner">
+      <div class="title-kicker">A NON-COMMERCIAL AI CINEMATIC DEMO</div>
+      <h1>零号信标</h1>
+      <div class="title-en">ECHO <span>ZERO</span></div>
+      <p class="title-tagline">当城市开始遗忘，一段死者的广播成了唯一的证词。</p>
+      <nav class="title-menu">
+        <button class="menu-item primary" data-action="new">开始接收</button>
+        <button class="menu-item" data-action="continue">继续信号</button>
+        <button class="menu-item" data-action="chapters">章回</button>
+        <button class="menu-item" data-action="sides">记忆碎片</button>
+        <button class="menu-item" data-action="gallery">回声画廊</button>
+        <button class="menu-item" data-action="settings">设置</button>
+        <button class="menu-item" data-action="credits">制作名单</button>
+      </nav>
+      <div class="title-foot">
+        <span>原创未来科幻 · 无版权争议</span>
+        <span>图像 / 视频：MiniMax H3</span>
+        <span>代码 / 音效：DeepSeek Flash</span>
+      </div>
+      <div class="title-disclaimer">非商业 Demo · 全部视觉素材为 AI 生成 · 不含任何现有作品角色或剧情</div>
+    </div>
+  </section>
+
+  <!-- 游戏画面 -->
+  <section id="gameScreen" class="screen">
+    <div class="bg-layer" id="bgA"></div>
+    <div class="bg-layer" id="bgB"></div>
+    <div class="bg-tint"></div>
+    <video class="cut-video" id="cutVideo" muted playsinline preload="auto"></video>
+
+    <div class="letterbox top"></div>
+    <div class="letterbox bottom"></div>
+
+    <header class="game-top">
+      <div class="chapter-chip"><span id="chapterNo">序章</span><b id="chapterTitle">死频</b></div>
+      <div class="top-actions">
+        <button class="ghost-btn" data-game="auto" title="自动播放">AUTO</button>
+        <button class="ghost-btn" data-game="skip" title="快进">SKIP</button>
+        <button class="ghost-btn" data-game="log" title="回看">LOG</button>
+        <button class="ghost-btn" data-game="save" title="存档">SAVE</button>
+        <button class="ghost-btn" data-game="menu" title="菜单">☰</button>
+      </div>
+    </header>
+
+    <div class="character-stage" id="characterStage">
+      <img id="charImg" alt="">
+      <div class="char-glow"></div>
+    </div>
+
+    <div class="dialogue-wrap" id="dialogueWrap">
+      <div class="speaker-row"><span class="speaker-line"></span><span id="speakerName">旁白</span><span class="speaker-en" id="speakerEn">NARRATOR</span></div>
+      <div class="dialogue-text" id="dialogueText"></div>
+      <div class="dialogue-foot">
+        <span class="hint" id="hintText">点击 / 空格继续</span>
+        <span class="line-count" id="lineCount"></span>
+      </div>
+      <div class="continue-mark" id="continueMark">▾</div>
+    </div>
+
+    <div class="choice-layer" id="choiceLayer">
+      <div class="choice-kicker">DECISION</div>
+      <div class="choice-prompt" id="choicePrompt"></div>
+      <div class="choice-list" id="choiceList"></div>
+    </div>
+
+    <div class="chapter-card" id="chapterCard">
+      <div class="cc-no" id="ccNo"></div>
+      <div class="cc-title" id="ccTitle"></div>
+      <div class="cc-sub" id="ccSub"></div>
+      <div class="cc-line"></div>
+    </div>
+
+    <div class="opening-layer" id="openingLayer">
+      <video id="openingVideo" muted playsinline preload="auto"></video>
+      <div class="opening-title">
+        <div class="ot-kicker">ORBITAL CITY · 2197</div>
+        <div class="ot-title">栖霞环</div>
+        <div class="ot-sub">最后一次广播，来自海平面以下。</div>
+      </div>
+      <button class="skip-opening" id="skipOpening">跳过片头 ↦</button>
+    </div>
+
+    <div class="side-end-layer" id="sideEndLayer">
+      <div class="side-end-kicker">MEMORY FRAGMENT</div>
+      <div class="side-end-title" id="sideEndTitle"></div>
+      <div class="side-end-sub" id="sideEndSub"></div>
+      <div class="side-end-actions"><button class="menu-item primary" data-side-action="title">返回标题</button><button class="menu-item" data-side-action="sides">记忆碎片</button></div>
+    </div>
+
+    <div class="ending-layer" id="endingLayer">
+      <video class="ending-video" id="endingVideo" muted playsinline loop preload="auto"></video>
+      <div class="ending-kicker">SIGNAL ENDS</div>
+      <div class="ending-title" id="endingTitle"></div>
+      <div class="ending-sub" id="endingSub"></div>
+      <div class="ending-actions"><button class="menu-item primary" data-action="backTitle">返回标题</button><button class="menu-item" data-action="gallery">回声画廊</button></div>
+    </div>
+  </section>
+
+  <!-- 通用弹窗 -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal" id="modal">
+      <div class="modal-head"><div><div class="modal-kicker" id="modalKicker"></div><h2 id="modalTitle"></h2></div><button class="modal-close" id="modalClose">×</button></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-foot" id="modalFoot"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+<script src="assets/manifest.js"></script>
+<script src="js/story.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
