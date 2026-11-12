@@ -71,7 +71,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .character-stage.hologram img{filter:drop-shadow(0 0 24px rgba(127,216,232,.35)) saturate(.75) brightness(1.12)}
 .char-glow{position:absolute;left:50%;bottom:4%;width:58%;height:12%;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(127,216,232,.18),transparent 70%);filter:blur(18px)}
 
-.dialogue-wrap{position:absolute;left:50%;bottom:calc(6.2vh + 2.4vh);transform:translateX(-50%) translateY(8px);width:min(1080px,88vw);z-index:30;background:linear-gradient(180deg,rgba(4,14,18,.58),rgba(4,12,15,.92));border:1px solid rgba(127,216,232,.16);border-top-color:rgba(232,179,106,.32);box-shadow:0 22px 80px rgba(0,0,0,.55);padding:18px clamp(18px,3vw,34px) 14px;opacity:0;visibility:hidden;transition:opacity .4s,transform .4s;backdrop-filter:blur(9px)}
+.dialogue-wrap{position:absolute;left:50%;bottom:calc(6.2vh + 2.4vh);transform:translateX(-50%) translateY(8px);width:min(1080px,88vw);z-index:30;background:linear-gradient(180deg,rgba(4,14,18,.58),rgba(4,12,15,.92));border:1px solid rgba(127,216,232,.16);border-top-color:rgba(232,179,106,.32);box-shadow:0 22px 80px rgba(0,0,0,.55);padding:18px clamp(18px,3vw,34px) 14px;opacity:0;visibility:hidden;transition:opacity .4s,transform .4s;backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
 .dialogue-wrap.show{opacity:1;visibility:visible;transform:translateX(-50%)}
 .dialogue-wrap:before{content:"";position:absolute;left:0;top:-1px;width:28%;height:1px;background:linear-gradient(90deg,var(--amber),transparent)}
 .speaker-row{display:flex;align-items:baseline;gap:10px;margin-bottom:7px}
@@ -129,7 +129,7 @@ button{font-family:inherit;color:inherit;background:none;border:none;cursor:poin
 .ending-actions{display:flex;gap:8px;margin-top:34px;flex-wrap:wrap;justify-content:center}
 
 /* ---------- 弹窗 ---------- */
-.modal-backdrop{position:fixed;inset:0;z-index:120;background:rgba(1,5,7,.78);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;pointer-events:none;transition:.25s}
+.modal-backdrop{position:fixed;inset:0;z-index:120;background:rgba(1,5,7,.78);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:18px;opacity:0;visibility:hidden;pointer-events:none;transition:.25s}
 .modal-backdrop.show{opacity:1;visibility:visible;pointer-events:auto}
 .modal{width:min(620px,94vw);max-height:86vh;display:flex;flex-direction:column;background:linear-gradient(180deg,rgba(6,18,23,.98),rgba(4,12,15,.98));border:1px solid rgba(127,216,232,.22);box-shadow:0 30px 100px rgba(0,0,0,.7);opacity:1;transform:none;animation:none}
 .modal.wide{width:min(980px,94vw)}
