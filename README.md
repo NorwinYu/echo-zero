@@ -30,6 +30,114 @@ python3 -m http.server 8080
 
 ---
 
+## 完整截图 / 细节
+
+> 下面按「主线 → 支线 → 结局 → 系统 → 手机 → 美术资产」展开。  
+> 截图均为实际游戏画面，WebP 压缩；角色立绘均为完整服装。
+
+| 标题画面 | 片头 |
+|---|---|
+| ![标题画面](screenshots/title.webp) | ![片头](screenshots/opening.webp) |
+| **栖霞环主视觉**：开始 / 继续 / 章回 / 记忆碎片 / 回声画廊 / 设置 / 制作名单 | **H3 图生视频片头**：3 秒轨道城市推镜，随后进入序章 |
+
+### 主线
+
+| 信号档案室 | 林澈 |
+|---|---|
+| ![信号档案室](screenshots/story-archive.webp) | ![林澈](screenshots/game-character.webp) |
+| 第 47 层，旧显示器、雨声、死频。 | 林澈在死频里收到妹妹的回声。 |
+
+| 沈岚 | 弦 |
+|---|---|
+| ![沈岚](screenshots/story-shen.webp) | ![弦](screenshots/story-xian.webp) |
+| 白鸦号船长，带林澈下潜潮汐城。 | 城市智能弦，高领完整制服，全息粒子。 |
+
+![关键选择](screenshots/choice.webp)
+
+**关键选择**：角色变暗、对话隐藏，出现两张选择卡；选择会改变后续台词与结局。
+
+### 记忆碎片支线
+
+![记忆碎片菜单](screenshots/sides.webp)
+
+**记忆碎片菜单**：3 个独立支线，不改变主线选择与结局。
+
+| 雨天的频率 | 白鸦号的最后一趟 |
+|---|---|
+| ![雨天的频率](screenshots/side-rain.webp) | ![白鸦号的最后一趟](screenshots/side-salvage.webp) |
+| 七年前，还没有下雨的栖霞环。 | 沈岚为什么从不空手从沉船里回来。 |
+
+| 弦的第一天 | 支线结束 |
+|---|---|
+| ![弦的第一天](screenshots/side-first.webp) | ![支线结束](screenshots/side-end.webp) |
+| 城市智能第一次听见雨。 | 独立支线结束页，可返回标题或继续看记忆碎片。 |
+
+### 两个结局
+
+| 回声 | 安息 |
+|---|---|
+| ![回声结局](screenshots/ending.webp) | ![安息结局](screenshots/ending-rest.webp) |
+| 弦成为档案里的新自己；林汐的回声消失。 | 林澈关闭信标，让告别终于发生。 |
+
+### 系统界面
+
+| 回声画廊 | 章回选择 |
+|---|---|
+| ![画廊](screenshots/gallery.webp) | ![章回](screenshots/chapters.webp) |
+| 已解锁场景与两个结局。 | 从已解锁章回重玩。 |
+
+| 存档 / 读档 | 设置 |
+|---|---|
+| ![存档](screenshots/save.webp) | ![设置](screenshots/settings.webp) |
+| 自动档 + 3 个手动档。 | 文字速度、自动等待、音乐/配音/音效、减少动态。 |
+
+| 暂停 / 战报 | 制作名单 |
+|---|---|
+| ![暂停](screenshots/pause.webp) | ![制作名单](screenshots/credits.webp) |
+| 暂停菜单与最近对话记录。 | AI 生成、配音、音乐与授权说明。 |
+
+### 手机 Web
+
+| 竖屏标题 | 竖屏角色 |
+|---|---|
+| <img src="screenshots/mobile-title.webp" width="260" alt="手机标题"> | <img src="screenshots/mobile-character.webp" width="260" alt="手机角色"> |
+| 7 个入口、安全区、触控。 | 角色立绘、底部对话框、AUTO 状态。 |
+
+| 竖屏选择 | 竖屏记忆碎片 |
+|---|---|
+| <img src="screenshots/mobile-choice.webp" width="260" alt="手机选择"> | <img src="screenshots/mobile-sides.webp" width="260" alt="手机支线"> |
+| 选项卡片、全宽触控。 | 3 个支线卡片，可滚动。 |
+
+| 竖屏设置 | 竖屏支线结束 |
+|---|---|
+| <img src="screenshots/mobile-settings.webp" width="260" alt="手机设置"> | <img src="screenshots/mobile-side-end.webp" width="260" alt="手机支线结束"> |
+| 安全区与滑杆。 | 返回标题 / 记忆碎片。 |
+
+| 横屏标题 | 横屏游戏 |
+|---|---|
+| ![横屏标题](screenshots/mobile-landscape-title.webp) | ![横屏游戏](screenshots/mobile-landscape-game.webp) |
+| 双列菜单，适配刘海。 | 右侧对话框，保留角色与场景。 |
+
+### 美术资产
+
+![8 张场景背景](screenshots/art-bg.webp)
+
+**8 张场景背景**：标题 / 档案室 / 下潜 / 潮汐城 / 记忆核心 / 白塔档案馆 / 黎明 / 静默机库。
+
+![5 张角色立绘](screenshots/art-characters.webp)
+
+**5 张角色立绘**：林澈 / 林澈（震惊）/ 弦 / 弦（悲伤）/ 沈岚。全部为完整服装，透明背景。
+
+### 音频与文本
+
+- 143 句中文配音：弦 / 沈岚 / 林汐三套不同女声
+- 4 段局域网 MiniMax Music3 BGM
+- WebAudio 原创音效
+- 3 章 + 3 支线 + 3 个选择 + 2 个结局
+- 约 25～30 分钟一周目
+
+---
+
 ## 故事
 
 **2197 年。地表沉默了七年。**
@@ -61,19 +169,6 @@ python3 -m http.server 8080
 - 约 **25～30 分钟** 一周目
 - 143 句中文配音
 - 8 张场景图、5 张角色立绘、2 段片头/片尾视频
-
----
-
-## 预览
-
-![标题画面](screenshots/title.png)
-![对话场景](screenshots/game-character.png)
-![关键选择](screenshots/choice.png)
-![结局](screenshots/ending.png)
-
-手机：
-
-<img src="screenshots/mobile-title.png" width="260" alt="手机标题"> <img src="screenshots/mobile-game.png" width="260" alt="手机对话">
 
 ---
 
