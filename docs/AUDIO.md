@@ -17,7 +17,7 @@
 
 ## 2. 调研：ComfyUI 里有什么
 
-对 `<comfyui-host>:8189/object_info` 做了节点扫描，相关节点包括：
+对 ComfyUI 的节点清单做了扫描，相关节点包括：
 
 - **Breeze TTS 2**：`BreezeVoiceSelector` + `BreezeTextToSpeech` + `BreezeVoiceDesign`
 - **Fish Audio TTS**：`FishAudioVoiceSelector` + `FishAudioTextToSpeech`
@@ -30,7 +30,7 @@
 
 ---
 
-## 3. 实测结果
+## 3. 测试结果
 
 ### 3.1 Breeze TTS 2
 
@@ -48,7 +48,7 @@ BreezeVoiceSelector (Chinese / 晨曦讲解员)
 Unauthorized: Please login first to use this node.
 ```
 
-Breeze 节点属于 Comfy.org API 节点，需要登录态，不是本地离线模型。
+Breeze 节点属于 Comfy.org API 节点，需要登录态，不是离线节点。
 
 ### 3.2 Fish Audio TTS
 
@@ -68,7 +68,7 @@ Unauthorized: Please login first to use this node.
 
 ### 3.3 MiniMax Music 3
 
-ComfyUI 直连的本地模型目录里没有：
+ComfyUI 内置节点中没有可直接使用的 Music3 模型：
 
 - `minimax_music3_dit_*`
 - `minimax_music3_text_encoder_*`
@@ -77,7 +77,7 @@ ComfyUI 直连的本地模型目录里没有：
 `UNETLoader` 只列出了 H3 的图像/视频模型，没有 Music 3 diffusion model。  
 要直接跑 ComfyUI 的 Music3，需要额外下载数 GB 模型，并配置 text encoder / audio VAE。
 
-**但局域网 H3 agent 现在已经支持 `kind:audio`**，底层就是 MiniMax Music3；本 Demo 已通过 agent 生成 4 段 BGM，不需要本地下载模型。
+**但 H3 音频接口已经支持 `kind:audio`**，底层是 MiniMax Music3；本 Demo 已通过该接口生成 4 段 BGM，无需在本地部署模型。
 
 参考：
 
@@ -87,7 +87,7 @@ ComfyUI 直连的本地模型目录里没有：
 
 ### 3.4 Sonilo / Pika / ElevenLabs / HeyGen
 
-这些也是 API 节点，需要 Comfy.org / 第三方登录或 API Key；当前环境不可用，因此没有使用。
+这些也是 API 节点，需要 Comfy.org / 第三方登录或 API Key；本 Demo 未使用。
 
 ---
 
@@ -123,9 +123,9 @@ ComfyUI 直连的本地模型目录里没有：
 - 不是可商用的配音演员；仅用于非商业 Demo
 - 不提供逐句情感标签（Edge CLI 只支持 rate / pitch）
 
-### 4.2 BGM：局域网 MiniMax Music3
+### 4.2 BGM：MiniMax Music3（H3 音频接口）
 
-局域网 H3 平台现在支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4 段 30 秒循环 BGM：
+H3 音频接口支持 `kind: audio`，模型为 **MiniMax Music3**。已生成 4 段 30 秒循环 BGM：
 
 - `theme`：主题 / 档案室
 - `descent`：下潜 / 紧张
@@ -134,7 +134,7 @@ ComfyUI 直连的本地模型目录里没有：
 
 参数：`caption` + `[Instrumental]` 歌词 + `seconds=30` + `steps=30` + `cfg=1.7`。
 
-- 生成时通过局域网 H3 agent 完成；运行时只播放已保存的 MP3，不联网
+- 生成时通过 H3 音频接口完成；运行时只播放已保存的 MP3，不联网
 - 播放：`js/audio.js` 用 `<audio loop>` 播放，按场景切换
 - 若文件缺失，回退到 WebAudio 程序化音乐
 - 全部为原创生成，无第三方采样
@@ -222,5 +222,5 @@ tools/generate_voice.py
 
 - **图像/视频**：MiniMax H3 可用，已生成 8 张场景、5 张角色、2 段视频。
 - **语音**：当前 H3 环境没有可用的离线神经 TTS；Breeze/Fish 需要登录，Music3 模型缺失。
-- **本 Demo 选择**：Edge 神经 TTS（对白） + 局域网 MiniMax Music3（BGM） + WebAudio（音效）；运行时完全离线。
+- **本 Demo 选择**：Edge 神经 TTS（对白） + MiniMax Music3（H3 音频接口，BGM） + WebAudio（音效）；运行时完全离线。
 - **后续升级**：登录 Comfy.org 使用 Breeze/Fish，或安装 MiniMax Music 3 模型。

@@ -72,7 +72,7 @@
 
 - Edge 神经 TTS，多角色声线
 - 输出 MP3，143 句，约 3.8 MB
-- BGM：局域网 MiniMax Music3 生成 4 段 30 秒 MP3
+- BGM：MiniMax Music3（H3 音频接口）生成 4 段 30 秒 MP3
 - 生成时在线，运行时不联网
 - 详见 [AUDIO.md](AUDIO.md)
 

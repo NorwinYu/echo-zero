@@ -7,7 +7,7 @@
 > **重要声明**  
 > 这是一个**非商业技术 Demo**，用于验证 **DeepSeek Flash（代码 / UI / 音效） + MiniMax H3（图像 / 视频 / 音乐） + Edge 神经 TTS（中文配音）** 的组合。  
 > **故事、角色、文本均为原创**，不含任何现有作品的角色、剧情或设定，不存在版权纠纷。  
-> 所有场景图、角色立绘、片头片尾视频由 **MiniMax H3** 生成；代码、界面、WebAudio 音效由 **DeepSeek Flash** 辅助生成；BGM 由局域网 MiniMax Music3 生成；中文配音由 Edge 神经 TTS 生成。  
+> 所有场景图、角色立绘、片头片尾视频由 **MiniMax H3** 生成；代码、界面、WebAudio 音效由 **DeepSeek Flash** 辅助生成；BGM 由 MiniMax Music3（H3 音频接口）生成；中文配音由 Edge 神经 TTS 生成。  
 > 本项目**仅供学习、研究、非商业展示**，不得用于商业发行、付费下载或广告变现。
 
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
@@ -131,7 +131,7 @@ python3 -m http.server 8080
 ### 音频与文本
 
 - 143 句中文配音：弦 / 沈岚 / 林汐三套不同女声
-- 4 段局域网 MiniMax Music3 BGM
+- 4 段 MiniMax Music3 BGM
 - WebAudio 原创音效
 - 3 章 + 3 支线 + 3 个选择 + 2 个结局
 - 约 25～30 分钟一周目
@@ -206,11 +206,11 @@ python3 -m http.server 8080
 这个 Demo 的音频部分做了实际调研，而不是假设：
 
 - ComfyUI 里有 **Breeze TTS 2**、**Fish Audio TTS**、**MiniMax Music 3**、**Sonilo**、**Pika Music** 等节点。
-- 实测 **Breeze TTS** 与 **Fish Audio TTS** 均返回 `Unauthorized: Please login first to use this node`，属于 Comfy.org API 节点，当前环境没有登录态。
-- ComfyUI 直连的 `UNETLoader` 里没有 Music3 模型；但局域网 H3 agent 现在已暴露 `kind:audio`（MiniMax Music3），本 Demo 已用它生成 4 段 BGM。
+- **Breeze TTS** 与 **Fish Audio TTS** 属于 Comfy.org API 节点，需要登录态；本 Demo 未使用。
+- 本 Demo 通过可用的 **H3 音频接口**（MiniMax Music3）生成 4 段 BGM；不依赖本地 ComfyUI 模型。
 - 因此本 Demo 采用：
   - **中文配音**：Edge 神经 TTS（`zh-CN-YunyangNeural` / `YunxiNeural` / `XiaoxiaoNeural` / `HsiaoChenNeural` / `XiaoyiNeural` 等），生成时在线、运行时不联网；输出 MP3。弦 / 沈岚 / 林汐使用不同声线。
-  - **BGM**：局域网 H3 的 **MiniMax Music3** 生成 4 段原创配乐（主题 / 下潜 / 档案馆 / 结局），运行时不联网。
+  - **BGM**：**MiniMax Music3**（H3 音频接口）生成 4 段原创配乐（主题 / 下潜 / 档案馆 / 结局），运行时不联网。
   - **音效**：WebAudio 实时合成。
 - 全部音频为原创合成 / 生成，不包含任何商业音乐、影视原声或现有作品台词。
 
@@ -227,7 +227,7 @@ python3 -m http.server 8080
 | 片头视频 | 1 | H3 image-to-video |
 | 片尾视频 | 1 | H3 image-to-video |
 | 中文配音 | 143 句 | Edge 神经 TTS（生成时在线，资产离线） |
-| BGM | 4 段 | 局域网 MiniMax Music3 生成 |
+| BGM | 4 段 | MiniMax Music3（H3 音频接口） |
 | 音效 | 程序化 | WebAudio 原创合成 |
 
 - 所有视觉素材已包含在仓库中，运行游戏不需要 H3 服务。
