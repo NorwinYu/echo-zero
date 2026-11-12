@@ -4,7 +4,7 @@
 'use strict';
 const AUDIO = (()=>{
   let ctx=null, master=null, musicBus=null, voiceBus=null, sfxBus=null;
-  let musicTimer=null, musicNodes=[], mode=null, voiceEl=null, voiceSource=null, voiceReq=0, voiceCache=new Map(), voiceOrder=[], unlocked=false, enabled=false, bgmEl=null, bgmFade=null;
+  let musicTimer=null, musicNodes=[], mode=null, voiceEl=null, voiceSource=null, voiceReq=0, voiceCache=new Map(), voiceOrder=[], unlocked=false, enabled=false, bgmSource=null, bgmGain=null, bgmBuffer=null, bgmPending=false, bgmTarget=0, bgmDucked=false, bgmStartAt=0, musicCache=new Map(), musicOrder=[];
   const settings={music:.16,voice:.95,sfx:.55};
   const chords={
     menu:[[146.83,174.61,220,261.63],[130.81,164.81,196,246.94],[116.54,146.83,174.61,220],[110,138.59,164.81,220]],
@@ -21,12 +21,14 @@ const AUDIO = (()=>{
     musicBus=ctx.createGain(); musicBus.gain.value=settings.music; musicBus.connect(master);
     voiceBus=ctx.createGain(); voiceBus.gain.value=settings.voice; voiceBus.connect(master);
     sfxBus=ctx.createGain(); sfxBus.gain.value=settings.sfx; sfxBus.connect(master);
+    bgmGain=ctx.createGain(); bgmGain.gain.value=0; bgmGain.connect(master);
     enabled=true;
   }
   function resume(){
     init();
-    if(ctx&&ctx.state==='suspended') ctx.resume().catch(()=>{});
-    if(bgmEl&&bgmEl.paused) bgmEl.play().catch(()=>{});
+    if(ctx&&ctx.state==='suspended'){
+      ctx.resume().then(()=>{if(bgmBuffer&&!bgmSource)startBgm();}).catch(()=>{});
+    }else if(ctx&&ctx.state==='running'&&bgmBuffer&&!bgmSource){startBgm();}
     if(ctx&&!unlocked){
       unlocked=true;
       try{const b=ctx.createBuffer(1,1,22050);const s=ctx.createBufferSource();s.buffer=b;s.connect(ctx.destination);s.start(0);}catch(e){}
@@ -45,17 +47,35 @@ const AUDIO = (()=>{
     for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*(1-i/len);
     const s=ctx.createBufferSource(); s.buffer=buf; const g=ctx.createGain(); g.gain.value=vol; s.connect(g); g.connect(sfxBus); s.start(ctx.currentTime+when);
   }
-  function startMusic(next){
-    if(next===mode&&(musicTimer||bgmEl)){ if(bgmEl&&bgmEl.paused) bgmEl.play().catch(()=>{}); return; } stopMusic(); mode=next;
-    const files=window.AI_ASSETS&&window.AI_ASSETS.music||{};
-    const src=files[next]||((next==='menu'||next==='archive')?files.theme:null)||(next==='silence'?files.ending:null);
-    if(src&&!settings.reduceMotion){
-      bgmEl=new Audio(); bgmEl.preload='auto'; bgmEl.src=src; bgmEl.loop=true; bgmEl.volume=0;
-      bgmEl.play().catch(()=>{});
-      const target=settings.music*(next==='silence'?.55:1); let v=0;
-      clearInterval(bgmFade); bgmFade=setInterval(()=>{ if(!bgmEl){clearInterval(bgmFade);return;} v=Math.min(target,v+.025); bgmEl.volume=v; if(v>=target)clearInterval(bgmFade); },50);
-      return;
-    }
+  function cacheMusic(src,buf){
+    if(musicCache.has(src)) return;
+    musicCache.set(src,buf); musicOrder.push(src);
+    while(musicOrder.length>2){const old=musicOrder.shift();musicCache.delete(old);}
+  }
+  function loadMusicBuffer(src){
+    if(musicCache.has(src)) return Promise.resolve(musicCache.get(src));
+    if(!ctx||!window.fetch) return Promise.reject(new Error('no audio context'));
+    return fetch(src).then(r=>{if(!r.ok)throw new Error('music '+r.status);return r.arrayBuffer();}).then(ab=>{
+      return new Promise((resolve,reject)=>{
+        const p=ctx.decodeAudioData(ab,buf=>{cacheMusic(src,buf);resolve(buf);},reject);
+        if(p&&p.then)p.then(buf=>{cacheMusic(src,buf);resolve(buf);},reject);
+      });
+    });
+  }
+  function startBgm(){
+    if(!ctx||!bgmBuffer||!bgmGain) return;
+    try{
+      if(bgmSource){try{bgmSource.stop()}catch(e){}bgmSource=null;}
+      const s=ctx.createBufferSource();s.buffer=bgmBuffer;s.loop=true;s.connect(bgmGain);
+      bgmSource=s;bgmStartAt=ctx.currentTime;
+      const g=bgmDucked?bgmTarget*.35:bgmTarget;
+      bgmGain.gain.cancelScheduledValues(ctx.currentTime);
+      bgmGain.gain.setValueAtTime(0,ctx.currentTime);
+      bgmGain.gain.linearRampToValueAtTime(g,ctx.currentTime+1.4);
+      s.start();
+    }catch(e){bgmSource=null;}
+  }
+  function startChords(next){
     if(!ctx||!enabled) return;
     const seq=chords[next]||chords.menu; let i=0;
     const play=()=>{
@@ -67,10 +87,32 @@ const AUDIO = (()=>{
     };
     play(); musicTimer=setInterval(play,7200);
   }
+  function startMusic(next){
+    if(next===mode&&(bgmSource||bgmPending||bgmBuffer||musicTimer)){
+      if(bgmBuffer&&!bgmSource&&ctx&&ctx.state==='running')startBgm();
+      return;
+    }
+    stopMusic(); mode=next;
+    const files=window.AI_ASSETS&&window.AI_ASSETS.music||{};
+    const src=files[next]||((next==='menu'||next==='archive')?files.theme:null)||(next==='silence'?files.ending:null);
+    if(src&&!settings.reduceMotion){
+      init();
+      bgmTarget=settings.music*(next==='silence'?.55:1);
+      bgmPending=true;
+      loadMusicBuffer(src).then(buf=>{
+        if(mode!==next)return;
+        bgmBuffer=buf;bgmPending=false;
+        if(ctx&&ctx.state==='running')startBgm();
+      }).catch(()=>{if(mode!==next)return;bgmPending=false;startChords(next);});
+      return;
+    }
+    startChords(next);
+  }
   function stopMusic(){
     if(musicTimer){ clearInterval(musicTimer); musicTimer=null; }
-    clearInterval(bgmFade); bgmFade=null;
-    if(bgmEl){ try{bgmEl.pause();bgmEl.currentTime=0;}catch(e){} bgmEl=null; }
+    if(bgmSource){try{bgmSource.stop()}catch(e){}bgmSource=null;}
+    bgmBuffer=null;bgmPending=false;bgmTarget=0;
+    if(bgmGain&&ctx){try{bgmGain.gain.cancelScheduledValues(ctx.currentTime);bgmGain.gain.setValueAtTime(0,ctx.currentTime);}catch(e){}}
     musicNodes.forEach(n=>{try{n.stop()}catch(e){}}); musicNodes=[]; mode=null;
   }
   function sfx(name){
@@ -83,7 +125,17 @@ const AUDIO = (()=>{
     else if(name==='glitch'){ noise(.15,.04); tone(120,.12,'square',.025,0,sfxBus,800); }
     else if(name==='rain'){ noise(1.4,.012); }
   }
-  function setVolume(k,v){ settings[k]=v; if(bgmEl&&k==='music') bgmEl.volume=v; if(!ctx) return; if(k==='music') musicBus.gain.value=v; if(k==='voice') voiceBus.gain.value=v; if(k==='sfx') sfxBus.gain.value=v; }
+  function setVolume(k,v){
+    settings[k]=v;
+    if(!ctx) return;
+    if(k==='music'){
+      bgmTarget=v*(mode==='silence'?.55:1);
+      if(bgmGain){const g=bgmDucked?bgmTarget*.35:bgmTarget;bgmGain.gain.setTargetAtTime(g,ctx.currentTime,.15);}
+      musicBus.gain.value=v;
+    }
+    if(k==='voice') voiceBus.gain.value=v;
+    if(k==='sfx') sfxBus.gain.value=v;
+  }
   function cacheVoice(src,buf){
     if(voiceCache.has(src)) return;
     voiceCache.set(src,buf); voiceOrder.push(src);
@@ -132,8 +184,12 @@ const AUDIO = (()=>{
     if(voiceEl){try{voiceEl.pause();voiceEl.currentTime=0;}catch(e){}voiceEl=null;}
     duck(false);
   }
-  function duck(on){ if(bgmEl) bgmEl.volume=on?settings.music*.35:settings.music; if(musicBus&&ctx) musicBus.gain.setTargetAtTime(on?settings.music*.35:settings.music,ctx.currentTime,.2); }
-  return { init,resume,startMusic,stopMusic,sfx,setVolume,playVoice,stopVoice,duck,preloadVoice,get status(){return {ctx:ctx?ctx.state:null,bgm:bgmEl?{paused:bgmEl.paused,readyState:bgmEl.readyState,currentTime:bgmEl.currentTime,volume:bgmEl.volume}:null,voice:!!voiceSource,cache:voiceCache.size};},get ready(){return !!ctx;} };
+  function duck(on){
+    bgmDucked=on;
+    if(bgmGain&&ctx){const g=on?bgmTarget*.35:bgmTarget;bgmGain.gain.setTargetAtTime(g,ctx.currentTime,.2);}
+    if(musicBus&&ctx) musicBus.gain.setTargetAtTime(on?settings.music*.35:settings.music,ctx.currentTime,.2);
+  }
+  return { init,resume,startMusic,stopMusic,sfx,setVolume,playVoice,stopVoice,duck,preloadVoice,get status(){return {ctx:ctx?ctx.state:null,bgm:bgmBuffer?{playing:!!bgmSource,ready:true,currentTime:bgmSource&&ctx?Math.max(0,ctx.currentTime-bgmStartAt):0,volume:bgmGain?bgmGain.gain.value:0}:null,voice:!!voiceSource,cache:voiceCache.size};},get ready(){return !!ctx;} };
 })();
 window.AUDIO=AUDIO;
 })();
